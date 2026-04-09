@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thermosim"
+version = "0.1.0"
+description = "Thermodynamic simulation toolkit for cycle analysis, heat transfer modeling, and system optimization"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "CoolProp>=6.6",
+    "pandas>=2.0",
+    "plotly>=5.14",
+    "jupyter>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.3",
+    "ruff>=0.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["thermosim*", "simulations*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
