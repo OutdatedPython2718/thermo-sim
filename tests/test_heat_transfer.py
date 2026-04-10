@@ -8,10 +8,10 @@ from simulations.heat_transfer.conduction import (
     BoundaryCondition,
     create_grid,
     solve_1d_steady,
+    solve_1d_transient_explicit,
     solve_2d_steady,
     solve_2d_transient_explicit,
 )
-from simulations.heat_transfer.conduction import solve_1d_transient_explicit
 
 
 class TestGrid:

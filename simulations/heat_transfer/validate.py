@@ -92,7 +92,7 @@ def main():
     for n, tc, err in zip(gc["resolutions"], gc["center_temps"], gc["errors"]):
         print(f"  {n:>4d}x{n:<4d}: T_center = {tc:.4f} K, error = {err:.2e}")
 
-    print(f"\n  Observed convergence orders:")
+    print("\n  Observed convergence orders:")
     for i in range(len(gc["errors"]) - 1):
         if gc["errors"][i + 1] < 1e-12:
             continue

@@ -1,6 +1,22 @@
 # System-Level Energy Optimization
 
-Jupyter notebook demonstrating scipy.optimize for finding optimal operating points in a combined thermal system (power cycle + waste heat recovery).
+Optimizes a Rankine power cycle with feedwater preheating using CoolProp real-fluid properties and scipy.optimize.
+
+## Model
+
+The system couples the existing `RankineCycle` model with a feedwater preheating loop:
+
+- **Primary cycle**: Rankine cycle (pump, boiler, turbine, condenser) with CoolProp state-point calculations
+- **Heat recovery**: A fraction of the condenser heat rejection is recovered to preheat feedwater before the boiler, reducing heat input
+- **Decision variables**: Turbine inlet temperature (550-900 K) and heat recovery fraction (0.0-0.8)
+- **Objective**: Minimize specific fuel consumption (heat input per unit net work)
+- **Constraint**: Turbine exhaust quality > 0.85 (wet steam erosion limit)
+
+All thermodynamic properties come from CoolProp's IAPWS-IF97 implementation.
+
+## Validation
+
+At zero heat recovery, the model exactly reproduces the standalone `RankineCycle` results (thermal efficiency, net work, and heat input match to machine precision). This self-consistency check runs in CI as a pytest test.
 
 ## Usage
 
@@ -8,18 +24,9 @@ Jupyter notebook demonstrating scipy.optimize for finding optimal operating poin
 jupyter notebook simulations/system_optim/system_optimization.ipynb
 ```
 
-## Optimization Details
-
-The optimizer minimizes specific fuel consumption (SFC in kJ/kWh) over two decision variables:
-
-- **Turbine inlet temperature** (600–1200 K): Higher temperatures improve Carnot-like efficiency but are bounded by material limits
-- **Heat recovery fraction** (0.0–0.8): Preheating the feed with exhaust heat reduces fuel input, but excessive recovery drops exhaust temperature below the 400 K materials constraint
-
-The SLSQP solver enforces the exhaust temperature constraint as a nonlinear inequality (T_exhaust - 400 ≥ 0). The sensitivity analysis table shows how SFC and system efficiency vary across a 5×4 grid of operating points, making the trade-off between temperature and recovery visible.
-
 ## Key Features
 
-- Simplified combined cycle thermodynamic model
-- scipy.optimize.minimize with SLSQP and nonlinear constraints
-- Plotly interactive contour plots of the objective landscape
+- CoolProp-based thermodynamic model (no simplified correlations)
+- scipy.optimize.minimize with SLSQP and real engineering constraints
+- Plotly interactive contour plots of the SFC landscape
 - Pandas sensitivity analysis tables
