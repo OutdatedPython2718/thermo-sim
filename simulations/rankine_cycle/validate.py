@@ -1,7 +1,9 @@
 """Validation of Rankine cycle model against textbook reference data."""
 
 from __future__ import annotations
+
 from dataclasses import dataclass
+
 from simulations.rankine_cycle.rankine import RankineCycle
 from thermosim.utils import j_to_kj
 
@@ -44,8 +46,13 @@ VALIDATION_CASES = [
 def run_validation():
     results = []
     for case in VALIDATION_CASES:
-        result = RankineCycle(fluid="Water", P_boiler=case.P_boiler, T_superheat=case.T_superheat, P_condenser=case.P_condenser, eta_pump=case.eta_pump, eta_turbine=case.eta_turbine).solve()
-        eta_err = abs(result.thermal_efficiency - case.expected_efficiency) / case.expected_efficiency
+        result = RankineCycle(
+            fluid="Water", P_boiler=case.P_boiler, T_superheat=case.T_superheat,
+            P_condenser=case.P_condenser, eta_pump=case.eta_pump, eta_turbine=case.eta_turbine,
+        ).solve()
+        eta_err = (
+            abs(result.thermal_efficiency - case.expected_efficiency) / case.expected_efficiency
+        )
         w_err = abs(j_to_kj(result.net_work) - case.expected_net_work) / case.expected_net_work
         results.append({
             "name": case.name, "source": case.source,
@@ -73,8 +80,16 @@ def main():
             all_pass = False
         print(f"\n[{status}] {r['name']}")
         print(f"  Source: {r['source']}")
-        print(f"  Efficiency: computed={r['computed_efficiency']:.4f}, expected={r['expected_efficiency']:.4f}, error={r['efficiency_error_pct']:.2f}%")
-        print(f"  Net work:   computed={r['computed_work_kj']:.1f} kJ/kg, expected={r['expected_work_kj']:.1f} kJ/kg, error={r['work_error_pct']:.2f}%")
+        print(
+            f"  Efficiency: computed={r['computed_efficiency']:.4f}, "
+            f"expected={r['expected_efficiency']:.4f}, "
+            f"error={r['efficiency_error_pct']:.2f}%"
+        )
+        print(
+            f"  Net work:   computed={r['computed_work_kj']:.1f} kJ/kg, "
+            f"expected={r['expected_work_kj']:.1f} kJ/kg, "
+            f"error={r['work_error_pct']:.2f}%"
+        )
     print(f"\n{'=' * 70}")
     print(f"  Overall: {'ALL PASSED' if all_pass else 'SOME FAILED'}")
     print(f"{'=' * 70}")

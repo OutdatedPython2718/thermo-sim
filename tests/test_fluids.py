@@ -1,6 +1,7 @@
 """Tests for thermosim.fluids — CoolProp property wrappers."""
 
 import pytest
+
 from thermosim.fluids import FluidState, fluid_state, saturation_curve
 
 

@@ -1,9 +1,12 @@
 """Steady-state 2D heat conduction runner with visualization."""
 
 from __future__ import annotations
+
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 from simulations.heat_transfer.conduction import BoundaryCondition, create_grid, solve_2d_steady
 from thermosim.plotting import apply_style
 
@@ -47,10 +50,20 @@ def main():
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     mid_j = ny // 2
     ax1.plot(grid["x"] * 100, T[mid_j, :], "o-", color="#e74c3c", markersize=3)
-    apply_style(ax1, title=f"Temperature at y = {grid['y'][mid_j]*100:.1f} cm", xlabel="x [cm]", ylabel="Temperature [K]")
+    apply_style(
+        ax1,
+        title=f"Temperature at y = {grid['y'][mid_j]*100:.1f} cm",
+        xlabel="x [cm]",
+        ylabel="Temperature [K]",
+    )
     mid_i = nx // 2
     ax2.plot(grid["y"] * 100, T[:, mid_i], "s-", color="#2980b9", markersize=3)
-    apply_style(ax2, title=f"Temperature at x = {grid['x'][mid_i]*100:.1f} cm", xlabel="y [cm]", ylabel="Temperature [K]")
+    apply_style(
+        ax2,
+        title=f"Temperature at x = {grid['x'][mid_i]*100:.1f} cm",
+        xlabel="y [cm]",
+        ylabel="Temperature [K]",
+    )
     fig.tight_layout()
     fig.savefig(output_dir / "steady_state_profiles.png", dpi=150, bbox_inches="tight")
     print(f"  Saved: {output_dir / 'steady_state_profiles.png'}")

@@ -4,7 +4,9 @@ Models a simple superheated Rankine cycle: pump -> boiler -> turbine -> condense
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
+
 from thermosim.fluids import FluidState, fluid_state
 
 
@@ -21,7 +23,10 @@ class CycleResult:
 
 
 class RankineCycle:
-    def __init__(self, fluid="Water", P_boiler=6e6, T_superheat=773.15, P_condenser=10e3, eta_pump=0.85, eta_turbine=0.87):
+    def __init__(
+        self, fluid="Water", P_boiler=6e6, T_superheat=773.15,
+        P_condenser=10e3, eta_pump=0.85, eta_turbine=0.87,
+    ):
         self.fluid = fluid
         self.P_boiler = P_boiler
         self.T_superheat = T_superheat

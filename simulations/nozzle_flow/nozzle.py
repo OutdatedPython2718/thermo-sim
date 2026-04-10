@@ -1,12 +1,15 @@
 """Quasi-1D compressible nozzle flow solver."""
 
 from __future__ import annotations
+
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import brentq
+
 from thermosim.plotting import apply_style
 
 
@@ -22,8 +25,12 @@ class NozzleGeometry:
         x_throat = 0.4
         return np.where(
             x_norm <= x_throat,
-            self.A_inlet + (self.A_throat - self.A_inlet) * (1 - np.cos(np.pi * x_norm / x_throat)) / 2,
-            self.A_throat + (self.A_exit - self.A_throat) * (1 - np.cos(np.pi * (x_norm - x_throat) / (1 - x_throat))) / 2,
+            self.A_inlet
+            + (self.A_throat - self.A_inlet)
+            * (1 - np.cos(np.pi * x_norm / x_throat)) / 2,
+            self.A_throat
+            + (self.A_exit - self.A_throat)
+            * (1 - np.cos(np.pi * (x_norm - x_throat) / (1 - x_throat))) / 2,
         )
 
 
@@ -77,7 +84,9 @@ def main():
     parser.add_argument("-n", type=int, default=200, help="Number of grid points")
     args = parser.parse_args()
 
-    geom = NozzleGeometry(L=args.length, A_inlet=args.A_inlet, A_throat=args.A_throat, A_exit=args.A_exit)
+    geom = NozzleGeometry(
+        L=args.length, A_inlet=args.A_inlet, A_throat=args.A_throat, A_exit=args.A_exit,
+    )
     result = solve_nozzle_flow(geom=geom, P0=args.P0, T0=args.T0, gamma=args.gamma, n_points=args.n)
 
     output_dir = Path("simulations/nozzle_flow/outputs")
@@ -102,7 +111,9 @@ def main():
     ax2.legend()
 
     ax3.plot(result["x"], result["P"] / args.P0, color="#27ae60", linewidth=2)
-    apply_style(ax3, title="Pressure Ratio Distribution", xlabel="Axial Position [m]", ylabel="P/P0")
+    apply_style(
+        ax3, title="Pressure Ratio Distribution", xlabel="Axial Position [m]", ylabel="P/P0",
+    )
 
     fig.tight_layout()
     fig.savefig(output_dir / "nozzle_profiles.png", dpi=150, bbox_inches="tight")

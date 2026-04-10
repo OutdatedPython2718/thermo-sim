@@ -1,11 +1,12 @@
 """Tests for thermosim.plotting — diagram generators."""
 
 import matplotlib
+
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
-import pytest
-from thermosim.plotting import plot_ts_diagram, plot_ph_diagram, apply_style
+
+from thermosim.plotting import apply_style, plot_ph_diagram, plot_ts_diagram
 
 
 class TestApplyStyle:

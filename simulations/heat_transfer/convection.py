@@ -1,7 +1,6 @@
 """Convective boundary condition handling and heat transfer coefficient correlations."""
 
 from __future__ import annotations
-import numpy as np
 
 
 def htc_flat_plate_forced(Re, Pr, k_fluid, L):

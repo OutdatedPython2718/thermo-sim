@@ -1,11 +1,14 @@
 """Tests for heat transfer simulation modules."""
 
-import warnings
 import numpy as np
 import pytest
+
 from simulations.heat_transfer.conduction import (
-    solve_1d_steady, solve_2d_steady, solve_2d_transient_explicit,
-    create_grid, BoundaryCondition,
+    BoundaryCondition,
+    create_grid,
+    solve_1d_steady,
+    solve_2d_steady,
+    solve_2d_transient_explicit,
 )
 
 

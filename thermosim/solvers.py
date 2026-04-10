@@ -5,6 +5,7 @@ and Gauss-Seidel 2D steady-state heat conduction.
 """
 
 from dataclasses import dataclass
+
 import numpy as np
 
 
@@ -74,7 +75,10 @@ def iterative_solve(g, x0, tol=1e-8, max_iter=200):
     return IterativeResult(x=x, converged=False, iterations=max_iter, residual=residual)
 
 
-def gauss_seidel_2d(nx, ny, bc_top=0.0, bc_bottom=0.0, bc_left=0.0, bc_right=0.0, tol=1e-6, max_iter=10000, source=None):
+def gauss_seidel_2d(
+    nx, ny, bc_top=0.0, bc_bottom=0.0, bc_left=0.0, bc_right=0.0,
+    tol=1e-6, max_iter=10000, source=None
+):
     """Gauss-Seidel solver for 2D steady-state heat conduction (Laplace/Poisson)."""
     T = np.zeros((ny, nx))
     T[0, :] = bc_top
@@ -92,7 +96,9 @@ def gauss_seidel_2d(nx, ny, bc_top=0.0, bc_bottom=0.0, bc_left=0.0, bc_right=0.0
         for j in range(1, ny - 1):
             for i in range(1, nx - 1):
                 T_old = T[j, i]
-                T[j, i] = 0.25 * (T[j + 1, i] + T[j - 1, i] + T[j, i + 1] + T[j, i - 1] + dx**2 * source[j, i])
+                T[j, i] = 0.25 * (
+                    T[j + 1, i] + T[j - 1, i] + T[j, i + 1] + T[j, i - 1] + dx**2 * source[j, i]
+                )
                 change = abs(T[j, i] - T_old)
                 if change > max_change:
                     max_change = change

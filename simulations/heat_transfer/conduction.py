@@ -1,8 +1,10 @@
 """Finite-difference conduction solvers for 1D and 2D heat transfer."""
 
 from __future__ import annotations
+
 import warnings
 from dataclasses import dataclass
+
 import numpy as np
 
 
@@ -83,7 +85,11 @@ def solve_2d_steady(nx, ny, Lx, Ly, bc, k=1.0, source=None, tol=1e-6, max_iter=1
                 if bc.bottom is None and j == ny - 2:
                     T_bottom_val = T[j - 1, i]
 
-                T[j, i] = rx * (T_left_val + T_right_val) + ry * (T_top_val + T_bottom_val) + rs * source[j, i]
+                T[j, i] = (
+                    rx * (T_left_val + T_right_val)
+                    + ry * (T_top_val + T_bottom_val)
+                    + rs * source[j, i]
+                )
                 change = abs(T[j, i] - T_old)
                 if change > max_change:
                     max_change = change

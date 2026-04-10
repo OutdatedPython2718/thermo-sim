@@ -1,7 +1,7 @@
-"""Publication-quality thermodynamic diagram generators.
+"""Thermodynamic diagram generators.
 
 Provides T-S and P-H diagram plotting with saturation domes,
-process paths, and consistent styling for portfolio presentation.
+process paths, and consistent styling.
 """
 
 from __future__ import annotations
@@ -9,7 +9,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 
-from thermosim.fluids import FluidState, saturation_curve
+from thermosim.fluids import saturation_curve
 
 COLORS = {
     "dome": "#2c3e50",
@@ -21,7 +21,7 @@ COLORS = {
 
 
 def apply_style(ax, title="", xlabel="", ylabel=""):
-    """Apply consistent publication-quality styling to an axes."""
+    """Apply consistent styling to an axes."""
     ax.set_title(title, fontsize=14, fontweight="bold", pad=12)
     ax.set_xlabel(xlabel, fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
@@ -50,9 +50,13 @@ def plot_ts_diagram(fluid, states=None, figsize=(10, 7)):
                 markersize=8, markerfacecolor=COLORS["points"], markeredgecolor="white",
                 markeredgewidth=1.5, label="Process path", zorder=5)
         for i, (s, T) in enumerate(zip(s_vals, T_vals)):
-            ax.annotate(f"  {i + 1}", (s, T), fontsize=10, fontweight="bold", color=COLORS["points"])
+            ax.annotate(
+                f"  {i + 1}", (s, T), fontsize=10, fontweight="bold", color=COLORS["points"]
+            )
 
-    apply_style(ax, title=f"T-s Diagram — {fluid}", xlabel="Entropy [kJ/(kg·K)]", ylabel="Temperature [K]")
+    apply_style(
+        ax, title=f"T-s Diagram — {fluid}", xlabel="Entropy [kJ/(kg·K)]", ylabel="Temperature [K]"
+    )
     ax.legend(fontsize=10)
     fig.tight_layout()
     return fig, ax
@@ -63,7 +67,9 @@ def plot_ph_diagram(fluid, states=None, figsize=(10, 7)):
     fig, ax = plt.subplots(figsize=figsize)
 
     sat = saturation_curve(fluid, n_points=200)
-    ax.plot(sat["h_f"] / 1e3, sat["P"] / 1e6, color=COLORS["dome"], linewidth=2, label="Saturation dome")
+    ax.plot(
+        sat["h_f"] / 1e3, sat["P"] / 1e6, color=COLORS["dome"], linewidth=2, label="Saturation dome"
+    )
     ax.plot(sat["h_g"] / 1e3, sat["P"] / 1e6, color=COLORS["dome"], linewidth=2)
 
     h_dome = np.concatenate([sat["h_f"], sat["h_g"][::-1]]) / 1e3
@@ -77,10 +83,14 @@ def plot_ph_diagram(fluid, states=None, figsize=(10, 7)):
                 markersize=8, markerfacecolor=COLORS["points"], markeredgecolor="white",
                 markeredgewidth=1.5, label="Process path", zorder=5)
         for i, (h, P) in enumerate(zip(h_vals, P_vals)):
-            ax.annotate(f"  {i + 1}", (h, P), fontsize=10, fontweight="bold", color=COLORS["points"])
+            ax.annotate(
+                f"  {i + 1}", (h, P), fontsize=10, fontweight="bold", color=COLORS["points"]
+            )
 
     ax.set_yscale("log")
-    apply_style(ax, title=f"P-h Diagram — {fluid}", xlabel="Enthalpy [kJ/kg]", ylabel="Pressure [MPa]")
+    apply_style(
+        ax, title=f"P-h Diagram — {fluid}", xlabel="Enthalpy [kJ/kg]", ylabel="Pressure [MPa]"
+    )
     ax.legend(fontsize=10)
     fig.tight_layout()
     return fig, ax

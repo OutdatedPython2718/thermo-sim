@@ -48,7 +48,9 @@ def fluid_state(fluid: str, **kwargs) -> FluidState:
     if fluid not in _FLUID_MAP:
         raise ValueError(f"Unknown fluid '{fluid}'. Supported: {list(_FLUID_MAP.keys())}")
     if len(kwargs) != 2:
-        raise ValueError(f"Exactly two independent properties required, got {len(kwargs)}: {list(kwargs.keys())}")
+        raise ValueError(
+            f"Exactly two independent properties required, got {len(kwargs)}: {list(kwargs.keys())}"
+        )
 
     cp_fluid = _FLUID_MAP[fluid]
     keys = list(kwargs.keys())

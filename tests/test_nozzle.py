@@ -2,7 +2,12 @@
 
 import numpy as np
 import pytest
-from simulations.nozzle_flow.nozzle import isentropic_mach_from_area_ratio, solve_nozzle_flow, NozzleGeometry
+
+from simulations.nozzle_flow.nozzle import (
+    NozzleGeometry,
+    isentropic_mach_from_area_ratio,
+    solve_nozzle_flow,
+)
 
 
 class TestIsentropicRelations:

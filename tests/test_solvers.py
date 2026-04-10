@@ -2,7 +2,8 @@
 
 import numpy as np
 import pytest
-from thermosim.solvers import rk4_integrate, iterative_solve, gauss_seidel_2d
+
+from thermosim.solvers import gauss_seidel_2d, iterative_solve, rk4_integrate
 
 
 class TestRK4:
@@ -49,12 +50,18 @@ class TestIterativeSolve:
 
 class TestGaussSeidel2D:
     def test_uniform_boundary(self):
-        T = gauss_seidel_2d(nx=10, ny=10, bc_top=100.0, bc_bottom=100.0, bc_left=100.0, bc_right=100.0, tol=1e-6, max_iter=1000)
+        T = gauss_seidel_2d(
+            nx=10, ny=10, bc_top=100.0, bc_bottom=100.0,
+            bc_left=100.0, bc_right=100.0, tol=1e-6, max_iter=1000,
+        )
         assert T.shape == (10, 10)
         assert np.allclose(T, 100.0, atol=0.1)
 
     def test_one_hot_boundary(self):
-        T = gauss_seidel_2d(nx=20, ny=20, bc_top=100.0, bc_bottom=0.0, bc_left=0.0, bc_right=0.0, tol=1e-6, max_iter=5000)
+        T = gauss_seidel_2d(
+            nx=20, ny=20, bc_top=100.0, bc_bottom=0.0,
+            bc_left=0.0, bc_right=0.0, tol=1e-6, max_iter=5000,
+        )
         center = T[10, 10]
         assert 0 < center < 100
         assert T[0, 10] == pytest.approx(100.0, abs=5.0)

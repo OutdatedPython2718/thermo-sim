@@ -16,5 +16,6 @@ env/
 .ruff_cache/
 **/outputs/
 !docs/gallery/
+.references/
 .DS_Store
 Thumbs.db

@@ -1,10 +1,17 @@
 """Transient 2D heat conduction runner."""
 
 from __future__ import annotations
+
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
-from simulations.heat_transfer.conduction import BoundaryCondition, create_grid, solve_2d_transient_explicit
+
+from simulations.heat_transfer.conduction import (
+    BoundaryCondition,
+    create_grid,
+    solve_2d_transient_explicit,
+)
 from thermosim.plotting import apply_style
 
 
@@ -67,7 +74,12 @@ def main():
 
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.plot(times, center_temps, "o-", color="#e74c3c", markersize=4)
-    apply_style(ax, title="Center Temperature vs. Time", xlabel="Time [s]", ylabel="Temperature [K]")
+    apply_style(
+        ax,
+        title="Center Temperature vs. Time",
+        xlabel="Time [s]",
+        ylabel="Temperature [K]",
+    )
     fig.tight_layout()
     fig.savefig(output_dir / "transient_center_temp.png", dpi=150, bbox_inches="tight")
     print(f"  Saved: {output_dir / 'transient_center_temp.png'}")

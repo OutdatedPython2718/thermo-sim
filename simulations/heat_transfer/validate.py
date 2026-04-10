@@ -1,9 +1,12 @@
 """Validation of heat transfer solvers against analytical solutions."""
 
 from __future__ import annotations
+
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 from simulations.heat_transfer.conduction import BoundaryCondition, solve_1d_steady, solve_2d_steady
 from thermosim.plotting import apply_style
 
@@ -20,7 +23,13 @@ def validate_1d():
     x = np.linspace(0, L, nx)
     T_analytical = analytical_1d_conduction(x, T_left, T_right, L)
     error = np.max(np.abs(T_numerical - T_analytical))
-    return {"x": x, "T_numerical": T_numerical, "T_analytical": T_analytical, "max_error": error, "pass": error < 0.01}
+    return {
+        "x": x,
+        "T_numerical": T_numerical,
+        "T_analytical": T_analytical,
+        "max_error": error,
+        "pass": error < 0.01,
+    }
 
 
 def grid_convergence_study():
@@ -34,7 +43,13 @@ def grid_convergence_study():
         dx_values.append(1.0 / (n - 1))
     T_exact_est = center_temps[-1] + (center_temps[-1] - center_temps[-2]) / 3
     errors = [abs(tc - T_exact_est) for tc in center_temps]
-    return {"resolutions": resolutions, "dx_values": dx_values, "center_temps": center_temps, "errors": errors, "T_exact_est": T_exact_est}
+    return {
+        "resolutions": resolutions,
+        "dx_values": dx_values,
+        "center_temps": center_temps,
+        "errors": errors,
+        "T_exact_est": T_exact_est,
+    }
 
 
 def main():
@@ -51,9 +66,20 @@ def main():
     print(f"  [{status}] Max error vs. analytical: {result_1d['max_error']:.2e} K")
 
     fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(result_1d["x"], result_1d["T_analytical"], "--", color="#2c3e50", linewidth=2, label="Analytical")
-    ax.plot(result_1d["x"], result_1d["T_numerical"], "o", color="#e74c3c", markersize=4, label="Numerical")
-    apply_style(ax, title="1D Conduction: Numerical vs. Analytical", xlabel="x [m]", ylabel="Temperature [K]")
+    ax.plot(
+        result_1d["x"], result_1d["T_analytical"],
+        "--", color="#2c3e50", linewidth=2, label="Analytical",
+    )
+    ax.plot(
+        result_1d["x"], result_1d["T_numerical"],
+        "o", color="#e74c3c", markersize=4, label="Numerical",
+    )
+    apply_style(
+        ax,
+        title="1D Conduction: Numerical vs. Analytical",
+        xlabel="x [m]",
+        ylabel="Temperature [K]",
+    )
     ax.legend()
     fig.tight_layout()
     fig.savefig(output_dir / "validation_1d.png", dpi=150, bbox_inches="tight")
@@ -71,7 +97,12 @@ def main():
     dx_ref = np.array(gc["dx_values"])
     scale = gc["errors"][0] / dx_ref[0]**2
     ax.loglog(dx_ref, scale * dx_ref**2, "--", color="#7f8c8d", label="2nd order ref.")
-    apply_style(ax, title="Grid Convergence Study", xlabel="Grid Spacing dx [m]", ylabel="Error vs. Extrapolated [K]")
+    apply_style(
+        ax,
+        title="Grid Convergence Study",
+        xlabel="Grid Spacing dx [m]",
+        ylabel="Error vs. Extrapolated [K]",
+    )
     ax.legend()
     fig.tight_layout()
     fig.savefig(output_dir / "grid_convergence.png", dpi=150, bbox_inches="tight")
