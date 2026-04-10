@@ -222,30 +222,39 @@ class TestTransientFourierSeries:
 
 
 class TestGridConvergenceOrder:
-    """Verify 2D Gauss-Seidel solver converges at 2nd order."""
+    """Verify 2D Gauss-Seidel solver converges at 2nd order.
+
+    Probes at the quarter-point (n//4, n//4) to avoid the
+    domain center, where symmetric BCs produce exact values
+    regardless of grid resolution.
+    """
 
     def test_observed_order_is_second(self):
         bc = BoundaryCondition(
             top=400.0, bottom=200.0, left=300.0, right=100.0,
         )
         resolutions = [21, 41, 81]
-        center_temps = []
+        probe_temps = []
         dx_values = []
 
         for n in resolutions:
             T = solve_2d_steady(
                 nx=n, ny=n, Lx=1.0, Ly=1.0,
-                bc=bc, k=1.0, tol=1e-10, max_iter=100000,
+                bc=bc, k=1.0,
+                tol=1e-10, max_iter=200000,
             )
-            center_temps.append(T[n // 2, n // 2])
+            # Probe at quarter-point to avoid center symmetry
+            j = n // 4
+            i = n // 4
+            probe_temps.append(T[j, i])
             dx_values.append(1.0 / (n - 1))
 
         # Richardson extrapolation for reference
         T_exact = (
-            center_temps[-1]
-            + (center_temps[-1] - center_temps[-2]) / 3
+            probe_temps[-1]
+            + (probe_temps[-1] - probe_temps[-2]) / 3
         )
-        errors = [abs(tc - T_exact) for tc in center_temps]
+        errors = [abs(tc - T_exact) for tc in probe_temps]
 
         for i in range(len(errors) - 1):
             if errors[i + 1] < 1e-12:

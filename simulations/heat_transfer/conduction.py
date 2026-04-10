@@ -6,8 +6,6 @@ import warnings
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.sparse import diags as sp_diags, kron as sp_kron, eye as sp_eye
-from scipy.sparse.linalg import spsolve
 
 
 @dataclass
@@ -48,103 +46,13 @@ def solve_1d_steady(nx, L, T_left, T_right, k=1.0, source=None):
 
 
 def solve_2d_steady(nx, ny, Lx, Ly, bc, k=1.0, source=None, tol=1e-6, max_iter=10000):
-    """Solve 2D steady-state conduction using a sparse direct solver.
-
-    Assembles the second-order central-difference system for the 2D
-    conduction equation ``k ∇²T + Q = 0`` and solves it exactly via sparse
-    LU factorisation.  Dirichlet conditions are applied where the
-    corresponding ``BoundaryCondition`` field is not ``None``; a zero-flux
-    (Neumann) mirror condition is used where the field is ``None``.
-
-    To maximise floating-point accuracy the linear system is solved for
-    ``T' = T - T_shift``, where ``T_shift`` is the mean of all non-None
-    boundary values.  This centring reduces round-off when the boundary
-    values are large relative to their differences.
-
-    The ``tol`` and ``max_iter`` parameters are accepted for API compatibility
-    but are not used; the direct solver always returns the exact FD solution
-    to machine precision.
-    """
+    """Solve 2D steady-state conduction via Gauss-Seidel iteration."""
     dx = Lx / (nx - 1)
     dy = Ly / (ny - 1)
+    T = np.zeros((ny, nx))
     if source is None:
         source = np.zeros((ny, nx))
 
-    # Collect the active (Dirichlet) boundary values and compute a shift so
-    # that the shifted BCs are centred near zero for better round-off.
-    bc_vals = [v for v in (bc.top, bc.bottom, bc.left, bc.right) if v is not None]
-    T_shift = float(np.mean(bc_vals)) if bc_vals else 0.0
-
-    # Shifted boundary values (None stays None)
-    s_top = (bc.top - T_shift) if bc.top is not None else None
-    s_bot = (bc.bottom - T_shift) if bc.bottom is not None else None
-    s_lft = (bc.left - T_shift) if bc.left is not None else None
-    s_rgt = (bc.right - T_shift) if bc.right is not None else None
-
-    ax = 1.0 / dx**2
-    ay = 1.0 / dy**2
-
-    ni_x = nx - 2  # number of interior columns
-    ni_y = ny - 2  # number of interior rows
-    n_int = ni_x * ni_y
-
-    def flat(j, i):
-        """Map interior 1-based indices (j, i) to flat index."""
-        return (j - 1) * ni_x + (i - 1)
-
-    # Build sparse system in LIL format for efficient row-wise fill.
-    from scipy.sparse import lil_matrix
-    A = lil_matrix((n_int, n_int))
-    b = np.zeros(n_int)
-
-    for j in range(1, ny - 1):
-        for i in range(1, nx - 1):
-            row = flat(j, i)
-            A[row, row] = -2.0 * (ax + ay)
-
-            # Left neighbour
-            if i - 1 == 0:
-                if s_lft is not None:
-                    b[row] -= ax * s_lft
-                else:                        # Neumann: mirror
-                    A[row, row] += ax
-            else:
-                A[row, flat(j, i - 1)] += ax
-
-            # Right neighbour
-            if i + 1 == nx - 1:
-                if s_rgt is not None:
-                    b[row] -= ax * s_rgt
-                else:
-                    A[row, row] += ax
-            else:
-                A[row, flat(j, i + 1)] += ax
-
-            # Top neighbour (j-1 in array index)
-            if j - 1 == 0:
-                if s_top is not None:
-                    b[row] -= ay * s_top
-                else:
-                    A[row, row] += ay
-            else:
-                A[row, flat(j - 1, i)] += ay
-
-            # Bottom neighbour
-            if j + 1 == ny - 1:
-                if s_bot is not None:
-                    b[row] -= ay * s_bot
-                else:
-                    A[row, row] += ay
-            else:
-                A[row, flat(j + 1, i)] += ay
-
-            # Source term: k∇²T = -Q  →  ∇²T' = -Q/k  (shift doesn't affect ∇²)
-            b[row] -= source[j, i] / k
-
-    T_prime = spsolve(A.tocsr(), b)
-
-    # Reconstruct full temperature field
-    T = np.full((ny, nx), T_shift)
     if bc.top is not None:
         T[0, :] = bc.top
     if bc.bottom is not None:
@@ -153,19 +61,50 @@ def solve_2d_steady(nx, ny, Lx, Ly, bc, k=1.0, source=None, tol=1e-6, max_iter=1
         T[:, 0] = bc.left
     if bc.right is not None:
         T[:, -1] = bc.right
-    for j in range(1, ny - 1):
-        for i in range(1, nx - 1):
-            T[j, i] = T_prime[flat(j, i)] + T_shift
 
-    # Neumann ghost rows/cols
-    if bc.left is None:
-        T[:, 0] = T[:, 1]
-    if bc.right is None:
-        T[:, -1] = T[:, -2]
-    if bc.top is None:
-        T[0, :] = T[1, :]
-    if bc.bottom is None:
-        T[-1, :] = T[-2, :]
+    rx = dy**2 / (2 * (dx**2 + dy**2))
+    ry = dx**2 / (2 * (dx**2 + dy**2))
+    rs = dx**2 * dy**2 / (2 * k * (dx**2 + dy**2))
+
+    for iteration in range(max_iter):
+        max_change = 0.0
+        for j in range(1, ny - 1):
+            for i in range(1, nx - 1):
+                T_old = T[j, i]
+                T_left_val = T[j, i - 1]
+                T_right_val = T[j, i + 1]
+                T_top_val = T[j - 1, i]
+                T_bottom_val = T[j + 1, i]
+
+                if bc.left is None and i == 1:
+                    T_left_val = T[j, i + 1]
+                if bc.right is None and i == nx - 2:
+                    T_right_val = T[j, i - 1]
+                if bc.top is None and j == 1:
+                    T_top_val = T[j + 1, i]
+                if bc.bottom is None and j == ny - 2:
+                    T_bottom_val = T[j - 1, i]
+
+                T[j, i] = (
+                    rx * (T_left_val + T_right_val)
+                    + ry * (T_top_val + T_bottom_val)
+                    + rs * source[j, i]
+                )
+                change = abs(T[j, i] - T_old)
+                if change > max_change:
+                    max_change = change
+
+        if bc.left is None:
+            T[:, 0] = T[:, 1]
+        if bc.right is None:
+            T[:, -1] = T[:, -2]
+        if bc.top is None:
+            T[0, :] = T[1, :]
+        if bc.bottom is None:
+            T[-1, :] = T[-2, :]
+
+        if max_change < tol:
+            break
 
     return T
 
