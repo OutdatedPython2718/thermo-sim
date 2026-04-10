@@ -109,6 +109,64 @@ def solve_2d_steady(nx, ny, Lx, Ly, bc, k=1.0, source=None, tol=1e-6, max_iter=1
     return T
 
 
+def solve_1d_transient_explicit(
+    T_initial, L, alpha, dt, n_steps,
+    T_left, T_right, save_every=100,
+):
+    """Solve 1D transient conduction with explicit (FTCS) scheme.
+
+    Parameters
+    ----------
+    T_initial : ndarray, shape (nx,)
+        Initial temperature distribution.
+    L : float
+        Domain length [m].
+    alpha : float
+        Thermal diffusivity [m^2/s].
+    dt : float
+        Time step [s].
+    n_steps : int
+        Number of time steps.
+    T_left, T_right : float
+        Dirichlet boundary temperatures [K].
+    save_every : int
+        Save snapshot every N steps.
+
+    Returns
+    -------
+    history : list of ndarray
+        Temperature snapshots.
+    """
+    nx = len(T_initial)
+    dx = L / (nx - 1)
+
+    Fo = alpha * dt / dx**2
+    if Fo > 0.5:
+        warnings.warn(
+            f"Fourier number Fo = {Fo:.3f} > 0.5. "
+            f"Explicit scheme may be unstable.",
+            UserWarning, stacklevel=2,
+        )
+
+    T = T_initial.copy()
+    T[0] = T_left
+    T[-1] = T_right
+    history = [T.copy()]
+
+    for step in range(n_steps):
+        T_new = T.copy()
+        for i in range(1, nx - 1):
+            T_new[i] = T[i] + Fo * (T[i + 1] - 2 * T[i] + T[i - 1])
+        T_new[0] = T_left
+        T_new[-1] = T_right
+        T = T_new
+
+        if (step + 1) % save_every == 0 or step == n_steps - 1:
+            history.append(T.copy())
+
+    return history
+
+
 def solve_2d_transient_explicit(T_initial, Lx, Ly, alpha, dt, n_steps, bc, save_every=100):
     """Solve 2D transient conduction with explicit (FTCS) scheme."""
     ny, nx = T_initial.shape

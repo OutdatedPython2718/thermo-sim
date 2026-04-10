@@ -10,6 +10,7 @@ from simulations.heat_transfer.conduction import (
     solve_2d_steady,
     solve_2d_transient_explicit,
 )
+from simulations.heat_transfer.conduction import solve_1d_transient_explicit
 
 
 class TestGrid:
@@ -71,3 +72,18 @@ class TestTransient:
                 T_initial=T_initial, Lx=1.0, Ly=1.0, alpha=1.0,
                 dt=1.0, n_steps=1, bc=bc,
             )
+
+
+class TestTransient1D:
+    def test_returns_history(self):
+        nx = 21
+        T_initial = np.zeros(nx)
+        T_initial[0] = 100.0
+        history = solve_1d_transient_explicit(
+            T_initial=T_initial, L=1.0, alpha=1e-4,
+            dt=0.1, n_steps=100, T_left=100.0, T_right=0.0,
+            save_every=50,
+        )
+        assert len(history) >= 2
+        assert len(history[0]) == nx
+        assert history[0][0] == pytest.approx(100.0)
