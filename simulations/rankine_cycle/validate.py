@@ -28,17 +28,27 @@ VALIDATION_CASES = [
         name="Ideal Rankine — 6 MPa / 350C / 10 kPa",
         P_boiler=6e6, T_superheat=623.15, P_condenser=10e3,
         eta_pump=1.0, eta_turbine=1.0,
-        expected_efficiency=0.363, expected_net_work=1032.0,
-        tolerance_efficiency=0.05, tolerance_work=0.05,
-        source="Cengel & Boles, Example 10-1 (adapted, CoolProp reference values)",
+        expected_efficiency=0.3627, expected_net_work=1031.8,
+        tolerance_efficiency=0.02, tolerance_work=0.02,
+        source=(
+            "NIST Webbook (https://webbook.nist.gov/chemistry/fluid/), IAPWS-IF97. "
+            "Hand calc: h1=3043.0 kJ/kg (6 MPa/350°C), h3=191.83 kJ/kg (sat liq 10 kPa), "
+            "h4=197.88 kJ/kg (pump outlet), h2s=2005.15 kJ/kg (isentropic turbine exit). "
+            "eta=(1037.85-6.05)/2845.12=0.3627, w_net=1031.8 kJ/kg."
+        ),
     ),
     ValidationCase(
         name="Ideal Rankine — 10 MPa / 500C / 10 kPa",
         P_boiler=10e6, T_superheat=773.15, P_condenser=10e3,
         eta_pump=1.0, eta_turbine=1.0,
-        expected_efficiency=0.402, expected_net_work=1275.0,
-        tolerance_efficiency=0.05, tolerance_work=0.05,
-        source="Cengel & Boles, Table 10 (adapted, CoolProp reference values)",
+        expected_efficiency=0.4018, expected_net_work=1274.5,
+        tolerance_efficiency=0.02, tolerance_work=0.02,
+        source=(
+            "NIST Webbook (https://webbook.nist.gov/chemistry/fluid/), IAPWS-IF97. "
+            "Hand calc: h1=3373.7 kJ/kg (10 MPa/500°C), h3=191.83 kJ/kg (sat liq 10 kPa), "
+            "h4=201.92 kJ/kg (pump outlet), h2s=2089.08 kJ/kg (isentropic turbine exit). "
+            "eta=(1284.62-10.09)/3171.78=0.4018, w_net=1274.5 kJ/kg."
+        ),
     ),
 ]
 

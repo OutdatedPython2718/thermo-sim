@@ -30,19 +30,22 @@ python -m simulations.rankine_cycle.visualize
 
 ## Validation
 
-The model is validated against reference cases adapted from Cengel & Boles *Thermodynamics: An Engineering Approach*:
+State points and cycle efficiency are validated against NIST/IAPWS-IF97 steam table reference values (source: [NIST Chemistry Webbook](https://webbook.nist.gov/chemistry/fluid/)).
 
-| Case | Conditions | Expected η | Computed η | Error |
-|------|-----------|-----------|-----------|-------|
-| Ideal Rankine | 6 MPa / 350°C / 10 kPa | 36.3% | 36.3% | <0.1% |
-| Ideal Rankine | 10 MPa / 500°C / 10 kPa | 40.2% | 40.2% | <0.1% |
+| State Point | Condition | NIST h [kJ/kg] | NIST s [kJ/(kg·K)] |
+|-------------|-----------|----------------|---------------------|
+| Sat. liquid | 10 kPa | 191.83 | 0.6493 |
+| Superheated | 6 MPa, 350°C | 3043.0 | 6.3335 |
+| Superheated | 10 MPa, 500°C | 3373.7 | 6.5966 |
 
-Both efficiency and net work output are compared, with a 5% relative error tolerance. CoolProp's real-fluid property lookups replace ideal-gas assumptions, so computed values reflect actual steam table data rather than simplified models. Run `python -m simulations.rankine_cycle.validate` to reproduce.
+Each state point's enthalpy and entropy computed by CoolProp is compared against the NIST value within 0.5% relative error. Overall cycle efficiency is verified against hand calculations using the NIST enthalpy values:
 
-Additional physics checks enforced in the test suite:
-- Irreversible cycles (η_pump < 1, η_turbine < 1) always produce lower efficiency than ideal cycles at the same conditions
-- Entropy generation is non-negative in every component (2nd law compliance)
-- State point pressures match the specified boiler and condenser pressures
+| Case | Conditions | NIST η | Computed η | Tolerance |
+|------|-----------|--------|-----------|-----------|
+| Ideal Rankine | 6 MPa / 350°C / 10 kPa | 36.27% | ~36.3% | < 2% |
+| Ideal Rankine | 10 MPa / 500°C / 10 kPa | 40.18% | ~40.2% | < 2% |
+
+These tests run in CI via pytest. Run `python -m simulations.rankine_cycle.validate` to reproduce.
 
 ## Key Features
 

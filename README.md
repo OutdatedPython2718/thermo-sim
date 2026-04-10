@@ -48,16 +48,16 @@ python -m simulations.nozzle_flow
 ## Simulations
 
 ### [Rankine Cycle](simulations/rankine_cycle/)
-Superheated Rankine cycle with CoolProp real-fluid properties, parametric sweeps over boiler pressure and superheat temperature, and validation against Cengel & Boles textbook reference cases (ideal cycles at 6 MPa/350°C and 10 MPa/500°C, verified within 5% of published efficiency and net work values).
+Superheated Rankine cycle with CoolProp real-fluid properties, parametric sweeps over boiler pressure and superheat temperature, and state-point validation against NIST/IAPWS-IF97 steam tables (enthalpy and entropy within 0.5%, cycle efficiency within 2% of hand calculation from NIST reference values).
 
 ### [Heat Transfer](simulations/heat_transfer/)
-1D/2D finite-difference conduction with steady-state (Gauss-Seidel) and transient (explicit FTCS) solvers. Validated two ways: the 1D solver matches the analytical linear conduction profile to machine precision (~10⁻¹² K error), and a grid convergence study across five resolutions (11×11 to 161×161) with Richardson extrapolation confirms the expected 2nd-order spatial convergence rate.
+1D/2D finite-difference conduction with steady-state (Gauss-Seidel) and transient (explicit FTCS) solvers. Validated against three analytical benchmarks: exact 1D linear profile (machine precision), semi-infinite solid erfc solution (< 2% error), and Fourier series finite bar (< 2% error). Grid convergence study confirms 2nd-order spatial accuracy with computed convergence order p ≈ 2.0.
 
 ### [Nozzle Flow](simulations/nozzle_flow/)
 Quasi-1D compressible flow through a converging-diverging nozzle. Solves the isentropic area-Mach relation using Brent's root-finding method, then computes pressure, temperature, and density from isentropic relations. Verified by checking Mach = 1.0 at the throat and confirming pressure/temperature ratios match the analytical isentropic relations at the exit plane.
 
 ### [System Optimization](simulations/system_optim/)
-Combined thermal system optimization (power cycle + waste heat recovery) using scipy.optimize with SLSQP and a nonlinear exhaust temperature constraint (T_exhaust > 400 K materials limit). Plotly interactive contour plots show the fuel consumption landscape with the constrained optimum marked.
+Rankine cycle with CoolProp-based feedwater preheating, optimized via scipy.optimize with a turbine exhaust quality constraint. Self-consistency verified: zero-recovery case exactly matches standalone Rankine cycle results.
 
 ### [Exploratory Analysis](notebooks/)
 Working fluid comparison (Water, R-134a, CO2) with Pandas and Plotly — saturation pressure curves, latent heat profiles, critical point properties, and overlaid T-s saturation envelopes.

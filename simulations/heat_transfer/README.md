@@ -35,24 +35,18 @@ python -m simulations.heat_transfer.visualize
 ## Validation
 
 ### 1D Analytical Comparison
+The steady-state solver reproduces the exact linear conduction profile T(x) = T_left + (T_right - T_left) * x / L to machine precision (~10⁻¹² K error).
 
-The 1D steady-state solver is validated against the exact analytical solution for conduction through a bar with fixed-temperature boundaries and no internal heat source: T(x) = T_left + (T_right - T_left) * x / L. The tridiagonal matrix solve reproduces this linear profile to near machine precision (~10⁻¹² K max error), confirming the discretization and solver are implemented correctly.
+### Transient Benchmarks
 
-### 2D Grid Convergence Study
+**Semi-infinite solid** (Incropera & DeWitt, Ch. 5, Eq. 5.60): A bar initially at T=0 with one end suddenly set to T=100. The analytical solution T(x,t) = 100 * erfc(x / (2*sqrt(alpha*t))) is compared against the numerical FTCS result at 5 interior positions. Max error < 2%.
 
-The 2D Gauss-Seidel solver is run at five resolutions (11×11, 21×21, 41×41, 81×81, 161×161) on a plate with four different boundary temperatures. The center-point temperature is tracked at each resolution to measure convergence:
+**Fourier series finite bar** (Carslaw & Jaeger, Section 3.3): A bar initially at T=0 with T(0)=100, T(L)=0. The exact solution is a Fourier sine series truncated at 50 terms. The numerical solution is compared at moderate time (< 2% error) and long time (< 0.5% error vs. steady-state linear profile).
 
-1. **Richardson extrapolation** on the two finest grids estimates the "exact" solution
-2. Error vs. grid spacing is plotted on a log-log scale
-3. The slope is compared against a 2nd-order reference line
+### Grid Convergence
+The 2D Gauss-Seidel solver is run at three resolutions (21x21, 41x41, 81x81). The observed convergence order is computed as p = log(e1/e2) / log(dx1/dx2) and asserted to be between 1.8 and 2.2, confirming 2nd-order spatial accuracy.
 
-This demonstrates mesh independence — the solution converges at the expected O(Δx²) rate for a second-order central-difference scheme. This is standard Verification & Validation (V&V) practice in computational engineering.
-
-### Transient Stability
-
-The explicit FTCS scheme automatically checks the Fourier number (Fo = α·Δt/Δx²) before time-stepping and raises a warning if Fo_x + Fo_y > 0.5, which would violate the CFL stability condition and produce oscillating, non-physical results.
-
-Run `python -m simulations.heat_transfer.validate` to reproduce all validation results.
+All validation tests run in CI via pytest.
 
 ## Key Features
 
