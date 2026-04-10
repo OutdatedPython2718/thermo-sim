@@ -92,6 +92,19 @@ def main():
     for n, tc, err in zip(gc["resolutions"], gc["center_temps"], gc["errors"]):
         print(f"  {n:>4d}x{n:<4d}: T_center = {tc:.4f} K, error = {err:.2e}")
 
+    print(f"\n  Observed convergence orders:")
+    for i in range(len(gc["errors"]) - 1):
+        if gc["errors"][i + 1] < 1e-12:
+            continue
+        p = np.log(gc["errors"][i] / gc["errors"][i + 1]) / np.log(
+            gc["dx_values"][i] / gc["dx_values"][i + 1]
+        )
+        print(
+            f"  {gc['resolutions'][i]}x{gc['resolutions'][i]} -> "
+            f"{gc['resolutions'][i+1]}x{gc['resolutions'][i+1]}: "
+            f"p = {p:.2f}"
+        )
+
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.loglog(gc["dx_values"], gc["errors"], "o-", color="#e74c3c", linewidth=2, markersize=8)
     dx_ref = np.array(gc["dx_values"])
